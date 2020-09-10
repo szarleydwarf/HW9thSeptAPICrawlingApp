@@ -10,21 +10,25 @@ import Foundation
 import UIKit
 
 class ApiGrabber {
-    let urlString = "https://pokeapi.co/api/v2"
     var data:Data?
-    var baseDictionary:[String:Any]=[:]
+    var dictionary:[String:Any]=[:]
+    var urlString = "https://pokeapi.co/api/v2"
     
-    init() {
-        guard let url = URL(string: urlString)else {return}
-        
+    private func getData(_ url: URL) {
         URLSession.shared.dataTask(with: url) { (data, respons, error) in
             guard let data = data else {return}
             
             self.data = data
-            guard let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] else {return}
+            guard let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []) else {return}
             guard let baseDictionary = jsonObject as? [String: Any] else {return}
-            self.baseDictionary = baseDictionary
+            self.dictionary = baseDictionary
         }.resume()
+    }
+    
+    init(){
+        guard let url = URL(string: urlString)else {return}
+        
+        getData(url)
     }
     
     //todo might have string version as well

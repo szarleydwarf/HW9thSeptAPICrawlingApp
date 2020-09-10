@@ -12,30 +12,38 @@ class ViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     var presenter:[Presenters] = [StringPresenter()]
     let apiGrabber = ApiGrabber()
-    var baseDictionary:[String:Any]=[:]
-
+    var dictionary:[String:Any]=[:]
+    var array:[Any]=[]
+    var urlString:String?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.tableView.dataSource = self
         self.tableView.delegate = self
-        self.baseDictionary = self.apiGrabber.baseDictionary
+        
+        self.dictionary = self.apiGrabber.dictionary
+        
         self.tableView.reloadData()
+    }
+    
+    func getKeyValue(index:Int)->(key:String, value:Any) {
+        let keys = Array(self.dictionary.keys)
+         let key = keys[index]
+        let value = self.dictionary[key]
+        return (key:key, value:value as Any)
     }
 }
 
 extension ViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.baseDictionary.count
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int  {
+        return self.dictionary.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "mainCell")
-        let keys = Array(self.baseDictionary.keys)
-        let key = keys[indexPath.row]
-        let value = self.baseDictionary[key]
-        
-        cell.textLabel?.text = key
-        cell.detailTextLabel?.text = "\(value)"
+        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
+        let tuple = self.getKeyValue(index: indexPath.row)
+        cell.textLabel?.text = tuple.key
+        cell.detailTextLabel?.text = "\(tuple.value)"
         
         return cell
     }
