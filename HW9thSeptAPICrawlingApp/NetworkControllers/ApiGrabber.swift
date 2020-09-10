@@ -12,7 +12,7 @@ import UIKit
 class ApiGrabber {
     let urlString = "https://pokeapi.co/api/v2"
     var data:Data?
-    var baseDictionary:[BaseDictionaryElement]?
+    var baseDictionary:[String:Any]=[:]
     
     init() {
         guard let url = URL(string: urlString)else {return}
@@ -23,13 +23,7 @@ class ApiGrabber {
             self.data = data
             guard let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] else {return}
             guard let baseDictionary = jsonObject as? [String: Any] else {return}
-//            print("dictionary-> \(baseDictionary)")
-            
-            for (key, value) in baseDictionary {
-               print("key> \(key) value>\(value)")
-                self.baseDictionary?.append(BaseDictionaryElement(name: key, url: value as! String))
-            }
-            
+            self.baseDictionary = baseDictionary
         }.resume()
     }
     
@@ -41,9 +35,4 @@ class ApiGrabber {
 //            self.data = data
 //        }.resume()
 //    }
-}
-
-struct BaseDictionaryElement {
-    var name:String
-    var url:String
 }

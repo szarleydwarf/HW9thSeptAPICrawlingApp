@@ -12,29 +12,30 @@ class ViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     var presenter:[Presenters] = [StringPresenter()]
     let apiGrabber = ApiGrabber()
-    var baseDictionary:[BaseDictionaryElement]?
-    
+    var baseDictionary:[String:Any]=[:]
+
     override func viewDidLoad() {
         super.viewDidLoad()
         self.tableView.dataSource = self
         self.tableView.delegate = self
-        print("Data-> \(self.apiGrabber.data)")
         self.baseDictionary = self.apiGrabber.baseDictionary
-        print(self.baseDictionary?.count ?? 0)
+        self.tableView.reloadData()
     }
 }
 
 extension ViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        print(self.baseDictionary?.count ?? 0)
-        return self.baseDictionary?.count ?? 0
+        return self.baseDictionary.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "mainCell")
-        let dictionary = self.baseDictionary?[indexPath.row]
-        cell.textLabel?.text = dictionary?.name
-        cell.detailTextLabel?.text = dictionary?.url
+        let keys = Array(self.baseDictionary.keys)
+        let key = keys[indexPath.row]
+        let value = self.baseDictionary[key]
+        
+        cell.textLabel?.text = key
+        cell.detailTextLabel?.text = "\(value)"
         
         return cell
     }
@@ -43,5 +44,10 @@ extension ViewController: UITableViewDataSource {
 }
 
 extension ViewController:UITableViewDelegate {
-    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let viewControler = storyboard.instantiateViewController(identifier: "ViewController")
+        
+        self.navigationController?.pushViewController(viewControler, animated: true)
+    }
 }
