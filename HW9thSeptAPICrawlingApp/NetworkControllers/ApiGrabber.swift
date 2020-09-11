@@ -12,7 +12,7 @@ import UIKit
 class ApiGrabber {
     var data:Data?
     var dictionary:[String:Any]=[:]
-    var urlString = "https://pokeapi.co/api/v2"
+    var urlString: String?
     
     private func getData(_ url: URL) {
         URLSession.shared.dataTask(with: url) { (data, respons, error) in
@@ -26,17 +26,14 @@ class ApiGrabber {
     }
     
     init(){
-        guard let url = URL(string: urlString)else {return}
-        
-        getData(url)
+        print("1 url>\(self.urlString)")
+        if self.urlString == nil {
+            self.urlString = "https://pokeapi.co/api/v2"
+        }
+        print("2 url>\(self.urlString)")
+        if let string = self.urlString{
+            guard let url = URL(string: string)else {return}
+            getData(url)
+        }
     }
-    
-    //todo might have string version as well
-//    init(with url: URL){
-//        URLSession.shared.dataTask(with: url) { (data, respons, error) in
-//            guard let data = data else {return}
-//            print("data->\(data)")
-//            self.data = data
-//        }.resume()
-//    }
 }

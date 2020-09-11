@@ -10,7 +10,6 @@ import UIKit
 
 class ViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
-    var presenter:[Presenters] = [StringPresenter()]
     let apiGrabber = ApiGrabber()
     var dictionary:[String:Any]=[:]
     var array:[Any]=[]
@@ -28,7 +27,7 @@ class ViewController: UIViewController {
     
     func getKeyValue(index:Int)->(key:String, value:Any) {
         let keys = Array(self.dictionary.keys)
-         let key = keys[index]
+        let key = keys[index]
         let value = self.dictionary[key]
         return (key:key, value:value as Any)
     }
@@ -43,8 +42,9 @@ extension ViewController: UITableViewDataSource {
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
         let tuple = self.getKeyValue(index: indexPath.row)
         cell.textLabel?.text = tuple.key
-        cell.detailTextLabel?.text = "\(tuple.value)"
-        
+        if let value = tuple.value as? String {
+            cell.detailTextLabel?.text = "\(value)"
+        }
         return cell
     }
     
@@ -54,8 +54,13 @@ extension ViewController: UITableViewDataSource {
 extension ViewController:UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let viewControler = storyboard.instantiateViewController(identifier: "ViewController")
-        
+        let viewControler = storyboard.instantiateViewController(identifier: "ViewController") as ViewController
+        let tuple = self.getKeyValue(index: indexPath.row)
+        if let value = tuple.value as? String{
+            viewControler.urlString = "\(value)"
+            self.apiGrabber.urlString = "\(value)"
+            print("value>\(value) > \(self.apiGrabber.urlString)")
+        }
         self.navigationController?.pushViewController(viewControler, animated: true)
     }
 }
