@@ -10,26 +10,30 @@ import UIKit
 
 class ViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
-    let apiGrabber = ApiGrabber()
-    var dictionary:[String:Any]=[:]
-    var array:[Any]=[]
-    var urlString:String?
+    var urlString:String="https://pokeapi.co/api/v2"
+    var dictionary:[String:Any] = [:]
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.tableView.dataSource = self
         self.tableView.delegate = self
-        
-        self.dictionary = self.apiGrabber.dictionary
-        
-        self.tableView.reloadData()
+        if let url = URL(string: self.urlString) {    
+            URLSession.shared.dataTask(with: url) { (data, respons, error) in
+                guard let data = data else {return}
+                guard let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] else {return}
+                self.dictionary = jsonObject
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
+            }.resume()
+        }
     }
     
-    func getKeyValue(index:Int)->(key:String, value:Any) {
+    func getKeyValue(index:Int)->(key:String, value:Any?) {
         let keys = Array(self.dictionary.keys)
         let key = keys[index]
         let value = self.dictionary[key]
-        return (key:key, value:value as Any)
+        return (key:key, value:value)
     }
 }
 
@@ -40,9 +44,11 @@ extension ViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
-        let tuple = self.getKeyValue(index: indexPath.row)
+        let tuple = getKeyValue(index: indexPath.row)
+        cell.textLabel?.textColor = .gray
         cell.textLabel?.text = tuple.key
-        if let value = tuple.value as? String {
+        cell.detailTextLabel?.textColor = .blue
+        if let value = tuple.value {
             cell.detailTextLabel?.text = "\(value)"
         }
         return cell
@@ -54,13 +60,11 @@ extension ViewController: UITableViewDataSource {
 extension ViewController:UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let viewControler = storyboard.instantiateViewController(identifier: "ViewController") as ViewController
-        let tuple = self.getKeyValue(index: indexPath.row)
-        if let value = tuple.value as? String{
-            viewControler.urlString = "\(value)"
-            self.apiGrabber.urlString = "\(value)"
-            print("value>\(value) > \(self.apiGrabber.urlString)")
+        let viewController = storyboard.instantiateViewController(identifier: "ViewController") as! ViewController
+        if let value = self.getKeyValue(index: indexPath.row).value {
+            viewController.urlString = "\(value)"
         }
-        self.navigationController?.pushViewController(viewControler, animated: true)
+        
+        self.navigationController?.pushViewController(viewController, animated: true)
     }
 }
